@@ -57,7 +57,7 @@ export class CategoryService {
       let lineSplit = l.split(" - ")
       let categoryTree = lineSplit[1].split(' > ')
       let name = categoryTree.pop()
-      let parent = categoryTree.length !== 0 ? categoryTree.pop() : null
+      let parent = categoryTree.length !== 0 ? categoryTree.pop() : null 
       let children = null
       return lineSplit ? {
         id: lineSplit[0],
