@@ -13,7 +13,6 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "postinstall": "npm run prestart:prod",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
