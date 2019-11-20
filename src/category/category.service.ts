@@ -27,19 +27,24 @@ export class CategoryService {
     var lines: string[] = textDocument.split('\n')
     var firstLine: string = lines.shift()
     console.log(`Parsing ${firstLine}`)
-    var categories: Category[]  = lines.filter(l => !!l).map(l => {
+    var categories: Category[] = [];
+    lines.filter(l => !!l).map(l => {
       let lineSplit = l.split(" - ")
       let categoryTree = lineSplit[1].split(' > ')
       let name = categoryTree.pop()
-      let parent =  categoryTree.length !== 0 ? categoryTree.pop() : null
+      let parentName =  categoryTree.length !== 0 ? categoryTree.pop() : null
       let children = null
-      return lineSplit ? {
+      let parent = categories.find( element => element.name === parentName);
+      categories.push(lineSplit ? {
         id: lineSplit[0],
         name,
-        parent: {name: parent},
+        parent,
         children
-      } as Category : null
+      } as Category : null)
     })
+    //TODO: Add children
+
+    
     return categories
   }
 
