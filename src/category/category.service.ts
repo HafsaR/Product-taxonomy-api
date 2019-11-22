@@ -1,4 +1,4 @@
-import { HttpService, Injectable } from '@nestjs/common';
+import { HttpService, Injectable, NotFoundException } from '@nestjs/common';
 import { Category } from './category.interface';
 import * as arrayToTree from 'array-to-tree';
 
@@ -38,7 +38,18 @@ export class CategoryService {
     return this.categories;
   }
 
-  public async findOne(id?: number): Promise<CategoryTree> {
+  public async findOne(id?: number): Promise<Category> {
+    if (!this.categories) {
+      this.categories = await this.fetchProductTaxonomy();
+    }
+    const category = this.categories.find((c: Category) => c.id === id);
+    if (!category) {
+      throw new NotFoundException('Category can not be found!');
+    }
+    return category;
+  }
+
+  public async findTree(id?: number): Promise<CategoryTree> {
     if (!this.categoryTree) {
       this.categories = await this.fetchProductTaxonomy();
       this.categoryTree = {
@@ -50,15 +61,15 @@ export class CategoryService {
         }),
       };
     }
+
     if (!id) {
-      console.log(
-        arrayToTree(this.categories, {
-          parentProperty: 'parent',
-        }),
-      );
       return this.categoryTree;
     } else {
-      //to do : find id by category tree
+      const tree = this.searchTree(this.categoryTree, id);
+      if (!tree) {
+        throw new NotFoundException('Category could not be found!');
+      }
+      return tree;
     }
   }
 
@@ -87,12 +98,26 @@ export class CategoryService {
             ? ({
                 id: +lineSplit[0],
                 name,
-                parent: parent ? parent.id:null,
+                parent: parent ? parent.id : null,
               } as Category)
             : null,
         );
       });
 
     return categories;
+  }
+
+  private searchTree(category: CategoryTree, id: number) {
+    if (category.id == id) {
+      return category;
+    } else if (category.children != null) {
+      var i;
+      var result = null;
+      for (i = 0; result == null && i < category.children.length; i++) {
+        result = this.searchTree(category.children[i], id);
+      }
+      return result;
+    }
+    return null;
   }
 }
